@@ -1,0 +1,234 @@
+======================================================================
+LRRS ? FEATURE AUDIT REPORT
+======================================================================
+
+Total columns in dataset: 108
+Included (usable) features: 105
+Excluded features: 3
+Actionable loan variables: 4
+
+?? INCLUDED FEATURES ??
+  acc_now_delinq                                APPLICATION_TIME
+    ? Number of accounts currently delinquent
+  acc_open_past_24mths                          APPLICATION_TIME
+    ? Number of trades opened in past 24 months
+  addr_state                                    APPLICATION_TIME
+    ? US state of residence
+  all_util                                      APPLICATION_TIME
+    ? Balance to credit limit on all trades
+  annual_inc                                    APPLICATION_TIME
+    ? Self-reported annual income
+  annual_inc_joint                              APPLICATION_TIME
+    ? Combined annual income for joint applications
+  application_type                              APPLICATION_TIME
+    ? Individual or joint application
+  avg_cur_bal                                   APPLICATION_TIME
+    ? Average current balance of all accounts
+  bc_open_to_buy                                APPLICATION_TIME
+    ? Total open to buy on revolving bankcards
+  bc_util                                       APPLICATION_TIME
+    ? Ratio of total current balance to high credit/credit limit for all bankcard accounts
+  chargeoff_within_12_mths                      APPLICATION_TIME
+    ? Number of charge-offs within 12 months
+  delinq_2yrs                                   APPLICATION_TIME
+    ? Number of 30+ day delinquencies in past 2 years
+  delinq_amnt                                   APPLICATION_TIME
+    ? The past-due amount owed for the accounts on which the borrower is now delinquent
+  disbursement_method                           APPLICATION_TIME
+    ? Method of disbursement (Cash/DirectPay)
+  dti                                           APPLICATION_TIME
+    ? Debt-to-income ratio excluding mortgage at time of application
+  dti_joint                                     APPLICATION_TIME
+    ? DTI for joint applications
+  earliest_cr_line                              APPLICATION_TIME
+    ? Date of earliest credit line ? used to derive credit age
+  emp_length                                    APPLICATION_TIME
+    ? Employment length in years ? proxy for income stability
+  emp_title                                     APPLICATION_TIME
+    ? Employer title ? high cardinality, use with caution
+  fico_range_high                               APPLICATION_TIME
+    ? Column not in registry ? assumed application-time; manual review recommended
+  fico_range_low                                APPLICATION_TIME
+    ? Column not in registry ? assumed application-time; manual review recommended
+  grade                                         APPLICATION_TIME
+    ? LC-assigned credit grade based on applicant credit profile
+  hardship_flag                                 APPLICATION_TIME
+    ? Whether borrower is on a hardship plan at origination
+  home_ownership                                APPLICATION_TIME
+    ? Home ownership status ? proxy for financial stability
+  il_util                                       APPLICATION_TIME
+    ? Ratio of total current balance to high credit/credit limit on instalment accounts
+  initial_list_status                           APPLICATION_TIME
+    ? Initial listing status of the loan (w/f)
+  inq_fi                                        APPLICATION_TIME
+    ? Number of personal finance inquiries
+  inq_last_12m                                  APPLICATION_TIME
+    ? Number of credit inquiries in past 12 months
+  inq_last_6mths                                APPLICATION_TIME
+    ? Number of credit inquiries in last 6 months
+  installment                                   ACTIONABLE_LOAN [ACTIONABLE]
+    ? Monthly payment derived from loan_amnt, term, int_rate ? actionable
+  int_rate                                      ACTIONABLE_LOAN [ACTIONABLE]
+    ? Interest rate assigned at origination ? lender can adjust based on risk tier
+  last_fico_range_high                          APPLICATION_TIME
+    ? Column not in registry ? assumed application-time; manual review recommended
+  last_fico_range_low                           APPLICATION_TIME
+    ? Column not in registry ? assumed application-time; manual review recommended
+  loan_amnt                                     ACTIONABLE_LOAN [ACTIONABLE]
+    ? Requested loan amount ? can be changed by adjusting loan offer
+  max_bal_bc                                    APPLICATION_TIME
+    ? Maximum current balance owed on all revolving accounts
+  mo_sin_old_il_acct                            APPLICATION_TIME
+    ? Months since oldest bank instalment account opened
+  mo_sin_old_rev_tl_op                          APPLICATION_TIME
+    ? Months since oldest revolving account opened
+  mo_sin_rcnt_rev_tl_op                         APPLICATION_TIME
+    ? Months since most recent revolving account opened
+  mo_sin_rcnt_tl                                APPLICATION_TIME
+    ? Months since most recent account opened
+  mort_acc                                      APPLICATION_TIME
+    ? Number of mortgage accounts
+  mths_since_last_delinq                        APPLICATION_TIME
+    ? Months since last delinquency ? missing means no delinquency
+  mths_since_last_major_derog                   APPLICATION_TIME
+    ? Column not in registry ? assumed application-time; manual review recommended
+  mths_since_last_record                        APPLICATION_TIME
+    ? Months since last public record
+  mths_since_rcnt_il                            APPLICATION_TIME
+    ? Months since most recent instalment account opened
+  mths_since_recent_bc                          APPLICATION_TIME
+    ? Months since most recent bankcard account opened
+  mths_since_recent_bc_dlq                      APPLICATION_TIME
+    ? Months since most recent bankcard delinquency
+  mths_since_recent_inq                         APPLICATION_TIME
+    ? Months since most recent inquiry
+  mths_since_recent_revol_delinq                APPLICATION_TIME
+    ? Months since most recent revolving delinquency
+  num_accts_ever_120_pd                         APPLICATION_TIME
+    ? Number of accounts ever 120 or more days past due
+  num_actv_bc_tl                                APPLICATION_TIME
+    ? Number of currently active bankcard accounts
+  num_actv_rev_tl                               APPLICATION_TIME
+    ? Number of currently active revolving trades
+  num_bc_sats                                   APPLICATION_TIME
+    ? Number of satisfactory bankcard accounts
+  num_bc_tl                                     APPLICATION_TIME
+    ? Number of bankcard accounts
+  num_il_tl                                     APPLICATION_TIME
+    ? Number of instalment accounts
+  num_op_rev_tl                                 APPLICATION_TIME
+    ? Number of open revolving accounts
+  num_rev_accts                                 APPLICATION_TIME
+    ? Number of revolving accounts
+  num_rev_tl_bal_gt_0                           APPLICATION_TIME
+    ? Number of revolving trades with balance > 0
+  num_sats                                      APPLICATION_TIME
+    ? Number of satisfactory accounts
+  num_tl_120dpd_2m                              APPLICATION_TIME
+    ? Number of accounts currently 120 days past due
+  num_tl_30dpd                                  APPLICATION_TIME
+    ? Number of accounts currently 30 days past due
+  num_tl_90g_dpd_24m                            APPLICATION_TIME
+    ? Number of accounts 90 or more days past due in last 24 months
+  num_tl_op_past_12m                            APPLICATION_TIME
+    ? Number of accounts opened in past 12 months
+  open_acc                                      APPLICATION_TIME
+    ? Number of open credit accounts at application time
+  open_acc_6m                                   APPLICATION_TIME
+    ? Accounts opened in last 6 months
+  open_act_il                                   APPLICATION_TIME
+    ? Number of currently active instalment accounts
+  open_il_12m                                   APPLICATION_TIME
+    ? Instalment accounts opened in past 12 months
+  open_il_24m                                   APPLICATION_TIME
+    ? Instalment accounts opened in past 24 months
+  open_rv_12m                                   APPLICATION_TIME
+    ? Revolving accounts opened in past 12 months
+  open_rv_24m                                   APPLICATION_TIME
+    ? Revolving accounts opened in past 24 months
+  pct_tl_nvr_dlq                                APPLICATION_TIME
+    ? Percent of trades never delinquent
+  percent_bc_gt_75                              APPLICATION_TIME
+    ? Percentage of all bankcard accounts > 75% of limit
+  pub_rec                                       APPLICATION_TIME
+    ? Number of derogatory public records
+  pub_rec_bankruptcies                          APPLICATION_TIME
+    ? Number of public record bankruptcies
+  purpose                                       APPLICATION_TIME
+    ? Stated loan purpose
+  revol_bal                                     APPLICATION_TIME
+    ? Total revolving credit balance
+  revol_bal_joint                               APPLICATION_TIME
+    ? Sum of revolving credit balance of the co-borrowers
+  revol_util                                    APPLICATION_TIME
+    ? Revolving line utilisation rate
+  sec_app_chargeoff_within_12_mths              APPLICATION_TIME
+    ? Charge-offs within 12 months for secondary applicant
+  sec_app_collections_12_mths_ex_med            APPLICATION_TIME
+    ? Collections in 12 months for secondary applicant
+  sec_app_earliest_cr_line                      APPLICATION_TIME
+    ? Earliest credit line date for secondary applicant
+  sec_app_fico_range_high                       APPLICATION_TIME
+    ? Column not in registry ? assumed application-time; manual review recommended
+  sec_app_fico_range_low                        APPLICATION_TIME
+    ? Column not in registry ? assumed application-time; manual review recommended
+  sec_app_inq_last_6mths                        APPLICATION_TIME
+    ? Inquiries in last 6 months for secondary applicant
+  sec_app_mort_acc                              APPLICATION_TIME
+    ? Mortgage accounts for secondary applicant
+  sec_app_mths_since_last_major_derog           APPLICATION_TIME
+    ? Months since last derog for secondary applicant
+  sec_app_num_rev_accts                         APPLICATION_TIME
+    ? Revolving accounts for secondary applicant
+  sec_app_open_acc                              APPLICATION_TIME
+    ? Open accounts for secondary applicant
+  sec_app_open_act_il                           APPLICATION_TIME
+    ? Currently active instalment accounts for secondary applicant
+  sec_app_revol_util                            APPLICATION_TIME
+    ? Revolving utilisation for secondary applicant
+  sub_grade                                     APPLICATION_TIME
+    ? Finer-grained sub-grade within grade band
+  tax_liens                                     APPLICATION_TIME
+    ? Number of tax liens
+  term                                          ACTIONABLE_LOAN [ACTIONABLE]
+    ? Loan repayment term (36 or 60 months) ? controllable loan parameter
+  tot_coll_amt                                  APPLICATION_TIME
+    ? Total collection amounts ever owed
+  tot_cur_bal                                   APPLICATION_TIME
+    ? Total current balance of all accounts
+  tot_hi_cred_lim                               APPLICATION_TIME
+    ? Total high credit/credit limit
+  total_acc                                     APPLICATION_TIME
+    ? Total number of credit lines
+  total_bal_ex_mort                             APPLICATION_TIME
+    ? Total credit balance excluding mortgage
+  total_bal_il                                  APPLICATION_TIME
+    ? Total current balance of all instalment accounts
+  total_bc_limit                                APPLICATION_TIME
+    ? Total bankcard high credit/credit limit
+  total_cu_tl                                   APPLICATION_TIME
+    ? Number of finance trades
+  total_il_high_credit_limit                    APPLICATION_TIME
+    ? Total instalment high credit/credit limit
+  total_rev_hi_lim                              APPLICATION_TIME
+    ? Total revolving high credit/credit limit
+  verification_status                           APPLICATION_TIME
+    ? Whether income was verified
+  verification_status_joint                     APPLICATION_TIME
+    ? Verification status for joint applications
+  zip_code                                      APPLICATION_TIME
+    ? First 3 digits of zip code ? geographic indicator
+
+?? EXCLUDED FEATURES ??
+  default                                       TARGET
+    ? Engineered binary target column (0/1) derived from loan_status
+  issue_d                                       APPLICATION_TIME
+    ? Loan origination date ? used for temporal split only, not as feature
+  loan_status                                   TARGET
+    ? Binary target: Charged Off / Fully Paid
+
+?? ACTIONABLE LOAN VARIABLES (Phase 3 targets) ??
+  loan_amnt
+  term
+  int_rate
+  installment

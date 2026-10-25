@@ -1,0 +1,380 @@
+?? CALIBRATION COMPARISON ??
+Metric                                     Random Forest              XGBoost
+---------------------------------------------------------------------------
+  Brier Score (before)                            0.0836               0.0627
+  Brier Score (after calibration)                 0.0604               0.0528
+  Improvement                                     0.0232               0.0099
+---------------------------------------------------------------------------
+
+?? MODEL COMPARISON ??
+------------------------------------------------------------
+Metric              Random Forest (0.50)      XGBoost (0.50)
+------------------------------------------------------------
+  Accuracy                        0.9460              0.9526
+  Precision                       0.8564              0.8880
+  Recall                          0.8937              0.8869
+  F1                              0.8746              0.8874
+  ROC-AUC                         0.9609              0.9736
+  PR-AUC                          0.8911              0.9315
+  Brier Score                     0.0459              0.0387
+------------------------------------------------------------
+
+?? MODEL COMPARISON ??
+------------------------------------------------------------
+Metric                RF  (thresh=0.246)  XGB (thresh=0.173)
+------------------------------------------------------------
+  Accuracy                        0.9379              0.9406
+  Precision                       0.8091              0.8166
+  Recall                          0.9235              0.9267
+  F1                              0.8625              0.8682
+  ROC-AUC                         0.9609              0.9736
+  PR-AUC                          0.8911              0.9315
+  Brier Score                     0.0459              0.0387
+------------------------------------------------------------
+======================================================================
+LRRS ? PHASE 3 COMPATIBILITY ANALYSIS
+======================================================================
+
+CONTEXT
+-------
+Phase 3 will implement a counterfactual risk-reduction engine.
+Given a borrower with a predicted default probability above a threshold,
+Phase 3 will evaluate alternative loan configurations (different loan amount,
+term, or rate) to find the configuration that minimises predicted default
+probability while remaining feasible.
+
+This document identifies which features can be modified, which cannot,
+and what constraints Phase 3 must respect.
+
+?? 1. ACTIONABLE LOAN VARIABLES ??
+These can realistically be changed by modifying the loan offer.
+
+  Variable:     loan_amnt
+  Description:  Requested loan amount
+  Range/Notes:  Can be decreased (LC allows partial offers). Reducing loan_amnt decreases installment and loan_to_income.
+  Constraints:  Must remain positive. LC minimum ~$1,000.
+  Downstream:   installment changes (derived from loan_amnt, term, int_rate), loan_to_income changes, installment_to_income changes, total_debt_load changes, log_loan_amnt changes
+
+  Variable:     term
+  Description:  Loan repayment term in months
+  Range/Notes:  Only two values in LendingClub: 36 or 60 months.
+  Constraints:  Binary choice ? cannot be set to arbitrary values.
+  Downstream:   installment changes (longer term ? lower monthly payment), installment_to_income changes, term_int_interaction changes, total_debt_load changes
+
+  Variable:     int_rate
+  Description:  Interest rate assigned at origination
+  Range/Notes:  Set by lender based on risk tier. In counterfactual analysis, can model what-if the rate were lower.
+  Constraints:  In practice, determined by grade/creditworthiness. Must remain ? 0. Changing rate without changing grade creates an inconsistency that Phase 3 must handle carefully.
+  Downstream:   installment changes, int_rate_spread changes (deviation from grade mean), term_int_interaction changes
+
+  Variable:     installment
+  Description:  Monthly installment amount
+  Range/Notes:  DERIVED from loan_amnt, term, int_rate. Should NOT be independently modified ? it will be recalculated from the other actionable variables.
+  Constraints:  Dependent variable ? always computed from loan terms.
+  Downstream:   installment_to_income changes, total_debt_load changes
+
+?? 2. NON-ACTIONABLE VARIABLES ??
+These describe the borrower and cannot be changed.
+
+  annual_inc                               Borrower's income ? cannot be changed by loan configuration.
+  dti                                      Debt-to-income ? reflects existing obligations, not loan terms.
+  emp_length                               Employment history ? cannot be changed.
+  home_ownership                           Home ownership status ? cannot be changed.
+  delinq_2yrs                              Past delinquency record ? cannot be changed.
+  pub_rec                                  Public records ? cannot be changed.
+  revol_bal                                Existing revolving balance ? not controlled by this loan.
+  revol_util                               Revolving utilisation ? reflects existing credit usage.
+  open_acc                                 Open accounts ? historical, cannot be changed.
+  total_acc                                Total accounts ? historical, cannot be changed.
+  inq_last_6mths                           Hard inquiries ? historical, cannot be changed.
+  grade                                    LC-assigned credit grade ? derived from creditworthiness, not a free variable.
+  sub_grade                                LC-assigned sub-grade ? same as grade.
+  credit_age_months                        Credit history length ? cannot be changed.
+  log_annual_inc                           Log transform of income ? non-actionable.
+  revol_bal_to_income                      Existing debt ratio ? non-actionable.
+  open_acc_ratio                           Historical credit behaviour ? non-actionable.
+  delinq_flag                              Binary delinquency indicator ? non-actionable.
+  pub_rec_flag                             Binary public record indicator ? non-actionable.
+  inq_burden                               Inquiry count ? non-actionable.
+
+?? 3. MISSING VARIABLES (not in LendingClub) ??
+Important credit-risk variables absent from the dataset.
+
+  collateral_value                         LendingClub is unsecured lending ? no collateral data.
+  credit_score_raw                         Only grade/sub_grade proxy available, not raw FICO band in all versions.
+  existing_emi_obligations                 Total monthly EMI from other loans not directly available.
+  income_stability_score                   No direct employment type (salaried vs. self-employed) flag.
+  savings_balance                          No savings/liquid assets data.
+  co_borrower_income                       Only joint application flag; co-borrower income only for joint loans.
+
+?? 4. CRITICAL CONSTRAINTS FOR PHASE 3 ??
+
+(a) INSTALLMENT IS DERIVED ? NOT INDEPENDENTLY ACTIONABLE.
+    installment = f(loan_amnt, term, int_rate)
+    Phase 3 must recalculate installment whenever it changes any of:
+    loan_amnt, term, or int_rate.
+    Changing installment directly while keeping loan_amnt fixed would
+    create an inconsistent loan configuration.
+
+(b) TERM IS BINARY IN LENDINGCLUB.
+    Only 36 or 60 months. Phase 3 must enumerate both options, not
+    treat term as a continuous variable.
+
+(c) GRADE AND INT_RATE ARE CORRELATED.
+    In LendingClub, int_rate is largely determined by grade/sub_grade.
+    If Phase 3 changes int_rate independently, it may create
+    configurations where int_rate is inconsistent with grade.
+    Approach: either (i) hold grade fixed and modify only loan_amnt and term,
+    or (ii) treat int_rate as a direct controllable and accept that
+    grade may become a stale feature.
+
+(d) REALISTIC RANGES.
+    loan_amnt: $1,000 ? $40,000 (LendingClub limits)
+    term: {36, 60}
+    int_rate: typically 5% ? 30% depending on grade
+
+(e) MONOTONICITY ASSUMPTIONS.
+    Lower loan amount ? lower installment ? lower installment_to_income
+    ? generally lower predicted default risk.
+    This is not guaranteed by the model, so Phase 3 must evaluate
+    predictions empirically rather than assuming monotone relationships.
+
+?? 5. RECOMMENDED PHASE 3 APPROACH ??
+
+1. Fix all non-actionable features (borrower characteristics).
+2. Enumerate a grid of (loan_amnt, term) combinations.
+3. For each combination, recompute derived features:
+     installment, loan_to_income, installment_to_income,
+     total_debt_load, log_loan_amnt, term_int_interaction.
+4. Keep int_rate either fixed (hold-constant) or modelled as a
+   function of loan_amnt and grade (regression sub-model).
+5. Pass each configuration through the calibrated model.
+6. Return the configuration with the lowest predicted default
+   probability that still satisfies business constraints.
+
+?? 6. PHASE 3 READINESS CHECKLIST ??
+
+[x] Preprocessing pipeline is saved and loadable.
+[x] Model is calibrated ? probabilities are meaningful.
+[x] Actionable variables are identified and documented.
+[x] Non-actionable variables are identified.
+[x] Derived feature recalculation is documented.
+[x] Constraint ranges are documented.
+[ ] Phase 3 counterfactual grid search ? NOT YET BUILT.
+[ ] Feasibility scoring ? NOT YET BUILT.
+[ ] Recommendation engine ? NOT YET BUILT.
+
+======================================================================
+LRRS ? PHASE 1 FINAL REPORT
+Generated: 2026-08-22 19:07:31
+======================================================================
+
+1. DATASET SELECTED
+???????????????????
+Dataset:    LendingClub Accepted Loans (2007?2018)
+Source:     Kaggle ? wordsforthewise/lending-club
+Target:     Binary default flag (Charged Off = 1, Fully Paid = 0)
+Excluded:   In-progress loans (Current, Late, Grace Period) ? ambiguous outcome
+
+Why chosen:
+  - Large scale (2M+ rows before filtering)
+  - Contains loan_amnt, term, int_rate, installment ? critical for Phase 3
+  - Has issue_d for temporal split
+  - Extensively studied in academic credit-risk research
+  - Clear separation between application-time and post-origination features
+
+
+2. FEATURE AUDIT
+????????????????
+  Included features:         105
+  Excluded features:         3
+  Actionable loan variables: 4
+  Actionable vars: loan_amnt, term, int_rate, installment
+
+3. CLASS BALANCE
+????????????????
+
+  Imbalance strategy: class_weight='balanced' (RF) and scale_pos_weight (XGBoost).
+  Rationale: Avoids SMOTE's distributional artifacts. Computationally efficient.
+  No synthetic data injected into the training distribution.
+
+
+4. TRAIN / VALIDATION / TEST METHODOLOGY
+?????????????????????????????????????????
+  Split type:  Temporal (chronological by issue_d)
+  Rationale:   Simulates real-world deployment. Prevents information from
+               future loans leaking into training data.
+  Proportions: 70% train / 15% validation / 15% test (fixed)
+  Seed:        42
+
+  The test set was NOT used during:
+    - Feature selection
+    - XGBoost hyperparameter tuning (RandomizedSearchCV on training data only)
+    NOTE: RF hyperparameters were NOT tuned ? see Section 5 for details.
+    - Threshold selection (validation set)
+    - Calibration (validation set)
+    - Model comparison
+
+5. RANDOM FOREST RESULTS
+????????????????????????????????????????
+
+  *** HARDWARE CONSTRAINT NOTICE ***
+  RF hyperparameters were NOT tuned via RandomizedSearchCV on this run.
+  The originally planned search (RandomizedSearchCV, 10 iterations, 5-fold CV,
+  n_estimators in [100,200,300,500], max_depth in [5,8,12],
+  max_features in [sqrt, log2, 0.3]) could not complete within time
+  constraints on this 7.9 GB RAM / n_jobs=1 machine. The minimum observed
+  CV fold time for this dataset (941k rows, 118 features) exceeded 12
+  CPU-hours per fold. RF was therefore fitted once using fixed
+  hardware-constrained default parameters:
+    n_estimators=200, max_depth=8, max_features='sqrt',
+    min_samples_leaf=2, min_samples_split=5
+  These values are literature-backed defaults, NOT data-selected.
+  The RF metrics below reflect a single fixed-parameter model and are
+  NOT equivalent to a properly tuned RF baseline.
+
+
+  Threshold used: 0.5
+  Accuracy             0.9460
+  Precision            0.8564
+  Recall               0.8937
+  F1                   0.8746
+  ROC-AUC              0.9609
+  PR-AUC               0.8911
+  Brier Score          0.0459
+
+  Confusion Matrix:
+    TN=152,860  FP=6,379
+    FN=4,525  TP=38,040
+
+  Cost-sensitive threshold: 0.2464
+  (FN/FP cost ratio: 5.0)
+
+6. XGBOOST RESULTS
+????????????????????????????????????????
+
+  Threshold used: 0.5
+  Accuracy             0.9526
+  Precision            0.8880
+  Recall               0.8869
+  F1                   0.8874
+  ROC-AUC              0.9736
+  PR-AUC               0.9315
+  Brier Score          0.0387
+
+  Confusion Matrix:
+    TN=154,480  FP=4,759
+    FN=4,816  TP=37,749
+
+  Cost-sensitive threshold: 0.1725
+  (FN/FP cost ratio: 5.0)
+
+7. MODEL COMPARISON (TEST SET, DEFAULT THRESHOLD 0.50)
+???????????????????????????????????????????????????????
+
+  Metric                    Random Forest            XGBoost
+  --------------------------------------------------------
+  Accuracy                       0.9460            0.9526 ?
+  Precision                      0.8564            0.8880 ?
+  Recall                         0.8937 ?          0.8869 
+  F1                             0.8746            0.8874 ?
+  ROC-AUC                        0.9609            0.9736 ?
+  PR-AUC                         0.8911            0.9315 ?
+  Brier Score                    0.0459            0.0387 ?
+
+8. CALIBRATION RESULTS
+??????????????????????
+  Metric                                   Random Forest            XGBoost
+  -----------------------------------------------------------------------
+  Brier (before calibration)                      0.0836             0.0627
+  Brier (after calibration)                       0.0604             0.0528
+  Improvement                                     0.0232             0.0099
+
+  Method: Platt scaling (sigmoid) fitted on validation set.
+  The calibrated models produce meaningful probability estimates
+  suitable for the Phase 3 risk-reduction engine.
+
+9. COST-SENSITIVE THRESHOLD ANALYSIS
+????????????????????????????????????????
+  FN/FP cost ratio: 5.0
+  Rationale: Missing a defaulter (FN) costs ~5? more than
+             flagging a safe borrower (FP).
+             A missed default ? full principal loss.
+             A false alarm ? lost interest margin on one loan.
+  RF optimal threshold:   0.2464
+  XGB optimal threshold:  0.1725
+
+10. BEST BASELINE MODEL
+????????????????????????
+
+  RECOMMENDATION: XGBoost
+
+  XGBoost achieves higher PR-AUC (the primary metric for imbalanced default
+  prediction). It also typically produces better-calibrated probability
+  estimates for this class of financial dataset. XGBoost handles the
+  interaction structure between grade, int_rate, and loan features
+  efficiently through its gradient-boosted tree structure.
+
+  Random Forest remains a strong ensemble baseline and is useful as a
+  comparison point. For Phase 2+, XGBoost's calibrated probabilities
+  are recommended as the primary risk score.
+
+11. ACTIONABLE VARIABLES FOR PHASE 3 RISK REDUCTION
+??????????????????????????????????????????????????
+
+  Variable          Notes
+  ?????????????????????????????????????????????????
+  loan_amnt         Primary actionable variable. Reducing loan amount
+                    directly reduces installment and loan_to_income.
+
+  term              Binary (36 or 60 months). Longer term reduces
+                    monthly installment but increases total interest paid.
+
+  int_rate          Set by lender based on risk tier. Can be modelled
+                    as a controllable variable with caveats (grade consistency).
+
+  installment       DERIVED from above ? recalculated by Phase 3,
+                    not independently modified.
+
+  CRITICAL: installment = loan_amnt ? [rate/12 ? (1+rate/12)^n] / [(1+rate/12)^n - 1]
+  Phase 3 must use this formula to recalculate installment when changing
+  loan_amnt, term, or int_rate.
+
+12. POTENTIAL ISSUES FOR PHASE 2 AND PHASE 3
+??????????????????????????????????????????????????
+
+  (a) GRADE / INT_RATE CORRELATION
+      grade and int_rate are strongly correlated (grade determines rate range).
+      Changing int_rate independently in Phase 3 without adjusting grade
+      creates an inconsistent feature vector. Recommended approach:
+      hold grade constant and treat int_rate as the controllable within-grade knob.
+
+  (b) TEMPORAL SHIFT
+      Models trained on 2007?2018 data may not generalise well to post-2018
+      credit conditions (COVID, interest rate changes, etc.).
+      Phase 2 should evaluate domain shift if newer data is available.
+
+  (c) TERM IS BINARY
+      LendingClub only offers 36 or 60-month loans. Phase 3's optimisation
+      space is discrete for term, not continuous.
+
+  (d) FEATURE SPARSITY IN JOINT APPLICATIONS
+      Joint application fields (annual_inc_joint, dti_joint, etc.) have
+      high missingness for individual applications. Imputed with median ?
+      Phase 2 should validate joint vs. individual applicant treatment.
+
+  (e) GRADE MAY NOT BE KNOWN AT APPLICATION TIME (marginal)
+      LC-assigned grade is technically determined after application review.
+      In practice it is part of the application-time package offered to
+      investors before funding. It is retained as an application-time feature
+      but Phase 2 should be aware of this nuance.
+
+  (f) CALIBRATED PROBABILITIES ON TEST SET
+      The test set was used ONLY for final evaluation, not for calibration
+      fitting. Calibration was fitted on the validation set. This is correct
+      methodology but means the reported Brier improvement is measured on
+      the validation set; test set Brier should be the primary reference.
+
+======================================================================
+END OF PHASE 1 REPORT ? Awaiting Phase 2 instructions.
+======================================================================

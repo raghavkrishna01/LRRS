@@ -1,0 +1,59 @@
+[2026-08-20 23:58:43] run_pipeline INFO: ============================================================
+[2026-08-20 23:58:43] run_pipeline INFO: LRRS PHASE 1 PIPELINE — START
+[2026-08-20 23:58:43] run_pipeline INFO: ============================================================
+[2026-08-20 23:58:43] run_pipeline INFO: 
+\u2500\u2500\u2500 STEP 1: Loading raw data \u2500\u2500\u2500
+[2026-08-20 23:58:43] src.data.loader INFO: Loading raw data from C:\Users\sragh\Downloads\archive (16)\accepted_2007_to_2018Q4.csv
+[2026-08-20 23:58:43] src.data.loader INFO: usecols: loading 107 of 151 CSV columns (44 excluded by registry)
+[2026-08-21 00:00:15] src.data.loader INFO: Chunked read complete: 23 chunks processed, 1345350 rows retained
+[2026-08-21 00:00:25] src.data.loader INFO: Loaded 1345350 rows × 107 columns
+[2026-08-21 00:00:31] run_pipeline INFO: Raw data loaded: 1345350 rows × 107 cols
+[2026-08-21 00:00:31] run_pipeline INFO: Step 2: Profiling skipped
+[2026-08-21 00:00:31] run_pipeline INFO: 
+\u2500\u2500\u2500 STEP 3: Creating binary target \u2500\u2500\u2500
+[2026-08-21 00:00:43] src.preprocessing.target INFO: Target creation: kept 1345350 resolved loans, dropped 0 ambiguous/in-progress loans (0.0%)
+[2026-08-21 00:00:43] src.preprocessing.target INFO: Default rate: 19.96%
+[2026-08-21 00:00:43] src.preprocessing.target INFO: Class distribution — Non-default: 1076751  Default: 268599  Imbalance ratio: 4.01:1
+[2026-08-21 00:00:44] run_pipeline INFO: After target creation: 1345350 rows  Default rate: 19.96%
+[2026-08-21 00:00:44] run_pipeline INFO: 
+\u2500\u2500\u2500 STEP 4: Feature audit (leakage detection) \u2500\u2500\u2500
+[2026-08-21 00:00:44] src.preprocessing.feature_audit INFO: Feature audit saved to results/reports
+[2026-08-21 00:00:44] run_pipeline INFO: Usable features: 105  Excluded: 3  Actionable: 4
+[2026-08-21 00:00:47] run_pipeline INFO: 
+\u2500\u2500\u2500 STEP 5: Feature engineering \u2500\u2500\u2500
+[2026-08-21 00:01:02] src.features.engineering INFO: Engineered 11 new features: ['loan_to_income', 'installment_to_income', 'log_annual_inc', 'log_loan_amnt', 'total_debt_load', 'delinq_flag', 'pub_rec_flag', 'inq_burden', 'revol_bal_to_income', 'open_acc_ratio', 'term_int_interaction']
+[2026-08-21 00:01:02] run_pipeline INFO: After engineering: 1345350 rows × 119 cols
+[2026-08-21 00:01:02] run_pipeline INFO: 
+\u2500\u2500\u2500 STEP 6: Train / Validation / Test split \u2500\u2500\u2500
+[2026-08-21 00:01:02] run_pipeline INFO: Method: Temporal (chronological by issue_d)
+[2026-08-21 00:01:02] run_pipeline INFO: Rationale: Simulates real-world deployment on future loans
+[2026-08-21 00:01:12] src.splitting.splitter INFO:   Train:   941,744 rows (70.0%)  default rate: 18.68%  [2007-06-01 00:00:00 \u2192 2016-04-01 00:00:00]
+[2026-08-21 00:01:12] src.splitting.splitter INFO:   Val:   201,802 rows (15.0%)  default rate: 24.86%  [2016-04-01 00:00:00 \u2192 2017-02-01 00:00:00]
+[2026-08-21 00:01:12] src.splitting.splitter INFO:   Test:   201,804 rows (15.0%)  default rate: 21.09%  [2017-02-01 00:00:00 \u2192 2018-12-01 00:00:00]
+[2026-08-21 00:01:26] src.splitting.splitter INFO: Splits saved to data/processed/  (train/val/test .parquet)
+[2026-08-21 00:01:26] run_pipeline INFO: 
+\u2500\u2500\u2500 STEP 7: Fitting preprocessing pipeline (training data only) \u2500\u2500\u2500
+[2026-08-21 00:01:26] src.preprocessing.pipeline INFO: Fitting preprocessor on 941744 rows
+C:\Users\sragh\LRRS\src\preprocessing\pipeline.py:251: FutureWarning: The default of observed=False is deprecated and will be changed to True in a future version of pandas. Pass observed=False to retain current behavior or observed=True to adopt the future default and silence this warning.
+  df.groupby("grade")["int_rate"].mean().to_dict()
+C:\Users\sragh\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\numpy\lib\nanfunctions.py:1215: RuntimeWarning: Mean of empty slice
+  return np.nanmean(a, axis, out=out, keepdims=keepdims)
+C:\Users\sragh\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\numpy\lib\nanfunctions.py:1215: RuntimeWarning: Mean of empty slice
+  return np.nanmean(a, axis, out=out, keepdims=keepdims)
+C:\Users\sragh\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\numpy\lib\nanfunctions.py:1215: RuntimeWarning: Mean of empty slice
+  return np.nanmean(a, axis, out=out, keepdims=keepdims)
+C:\Users\sragh\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\numpy\lib\nanfunctions.py:1215: RuntimeWarning: Mean of empty slice
+  return np.nanmean(a, axis, out=out, keepdims=keepdims)
+C:\Users\sragh\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\numpy\lib\nanfunctions.py:1215: RuntimeWarning: Mean of empty slice
+  return np.nanmean(a, axis, out=out, keepdims=keepdims)
+C:\Users\sragh\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\numpy\lib\nanfunctions.py:1215: RuntimeWarning: Mean of empty slice
+  return np.nanmean(a, axis, out=out, keepdims=keepdims)
+C:\Users\sragh\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\numpy\lib\nanfunctions.py:1215: RuntimeWarning: Mean of empty slice
+  return np.nanmean(a, axis, out=out, keepdims=keepdims)
+C:\Users\sragh\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\numpy\lib\nanfunctions.py:1215: RuntimeWarning: Mean of empty slice
+  return np.nanmean(a, axis, out=out, keepdims=keepdims)
+[2026-08-21 00:02:11] run_pipeline INFO: Preprocessed shapes — train: (941744, 118)  val: (201802, 118)  test: (201804, 118)
+[2026-08-21 00:02:11] src.preprocessing.pipeline INFO: Preprocessor saved to models/preprocessor.pkl
+[2026-08-21 00:02:22] run_pipeline INFO: 
+\u2500\u2500\u2500 STEP 8: Training Random Forest \u2500\u2500\u2500
+[2026-08-21 00:02:22] src.models.train_rf INFO: Starting RF RandomizedSearchCV: 20 iterations, 5 folds

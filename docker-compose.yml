@@ -1,0 +1,26 @@
+version: "3.9"
+
+services:
+  lrrs-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: lrrs:latest
+    container_name: lrrs-app
+    ports:
+      - "8501:8501"
+    volumes:
+      # Mount model artifacts (not baked into image)
+      - ./models:/app/models:ro
+      # Mount results for any runtime artifact reads
+      - ./results:/app/results:ro
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s

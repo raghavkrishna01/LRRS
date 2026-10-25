@@ -1,0 +1,116 @@
+[2026-08-22 19:05:09] resume_step11 INFO: ============================================================
+[2026-08-22 19:05:09] resume_step11 INFO: LRRS PHASE 1 RESUME -- Steps 11-16 (models pre-loaded)
+[2026-08-22 19:05:09] resume_step11 INFO: ============================================================
+[2026-08-22 19:05:09] resume_step11 INFO: Loading preprocessed splits from data\processed (read-only)
+[2026-08-22 19:05:20] resume_step11 INFO: Splits loaded -- train: (941744, 118)  val: (201802, 118)  test: (201804, 118)
+[2026-08-22 19:05:20] resume_step11 INFO: Loading RF from models\random_forest.pkl (no retraining)
+[2026-08-22 19:05:22] resume_step11 INFO: Loading XGBoost from models\xgboost.json (no retraining)
+[2026-08-22 19:05:24] resume_step11 INFO: Models loaded successfully.
+[2026-08-22 19:05:24] resume_step11 INFO: 
+--- STEP 11: Calibrating probabilities (validation set) ---
+[2026-08-22 19:05:24] resume_step11 INFO: Method: Platt scaling (sigmoid) fitted on validation set.
+[2026-08-22 19:05:24] resume_step11 INFO: Base models are NOT re-fitted during calibration.
+[2026-08-22 19:06:05] src.calibration.calibrate INFO: random_forest calibration (sigmoid): Brier before=0.0836  after=0.0604  improvement=0.0232
+[2026-08-22 19:06:07] src.calibration.calibrate INFO: Calibration plot saved for random_forest
+[2026-08-22 19:06:07] src.calibration.calibrate INFO: Calibrated model saved to models/random_forest_calibrated.pkl
+[2026-08-22 19:06:10] src.calibration.calibrate INFO: xgboost calibration (sigmoid): Brier before=0.0627  after=0.0528  improvement=0.0099
+[2026-08-22 19:06:11] src.calibration.calibrate INFO: Calibration plot saved for xgboost
+[2026-08-22 19:06:11] src.calibration.calibrate INFO: Calibrated model saved to models/xgboost_calibrated.pkl
+[2026-08-22 19:06:26] resume_step11 INFO: 
+--- STEP 12: Cost-sensitive threshold selection (validation set) ---
+[2026-08-22 19:06:26] resume_step11 INFO: FN/FP cost ratio: 5.0
+[2026-08-22 19:06:39] src.evaluation.metrics INFO: Cost-sensitive threshold (FN/FP cost ratio=5.0): 0.2464
+[2026-08-22 19:06:54] src.evaluation.metrics INFO: Cost-sensitive threshold (FN/FP cost ratio=5.0): 0.1725
+[2026-08-22 19:06:55] resume_step11 INFO: RF  optimal threshold: 0.2464
+[2026-08-22 19:06:55] resume_step11 INFO: XGB optimal threshold: 0.1725
+[2026-08-22 19:06:55] resume_step11 INFO: 
+--- STEP 13: FINAL evaluation on TEST SET ---
+[2026-08-22 19:06:55] resume_step11 INFO: NOTE: Test set was not used in any prior step.
+[2026-08-22 19:07:12] src.evaluation.metrics INFO: \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+[2026-08-22 19:07:12] src.evaluation.metrics INFO: Evaluation: random_forest (threshold=0.50)
+[2026-08-22 19:07:12] src.evaluation.metrics INFO:   Accuracy:  0.9460
+[2026-08-22 19:07:12] src.evaluation.metrics INFO:   Precision: 0.8564
+[2026-08-22 19:07:12] src.evaluation.metrics INFO:   Recall:    0.8937
+[2026-08-22 19:07:12] src.evaluation.metrics INFO:   F1:        0.8746
+[2026-08-22 19:07:12] src.evaluation.metrics INFO:   ROC-AUC:   0.9609
+[2026-08-22 19:07:12] src.evaluation.metrics INFO:   PR-AUC:    0.8911
+[2026-08-22 19:07:12] src.evaluation.metrics INFO:   Brier:     0.0459
+[2026-08-22 19:07:12] src.evaluation.metrics INFO:   CM: TN=152860 FP=6379 FN=4525 TP=38040
+[2026-08-22 19:07:18] src.evaluation.metrics INFO: \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+[2026-08-22 19:07:18] src.evaluation.metrics INFO: Evaluation: xgboost (threshold=0.50)
+[2026-08-22 19:07:18] src.evaluation.metrics INFO:   Accuracy:  0.9526
+[2026-08-22 19:07:18] src.evaluation.metrics INFO:   Precision: 0.8880
+[2026-08-22 19:07:18] src.evaluation.metrics INFO:   Recall:    0.8869
+[2026-08-22 19:07:18] src.evaluation.metrics INFO:   F1:        0.8874
+[2026-08-22 19:07:18] src.evaluation.metrics INFO:   ROC-AUC:   0.9736
+[2026-08-22 19:07:18] src.evaluation.metrics INFO:   PR-AUC:    0.9315
+[2026-08-22 19:07:18] src.evaluation.metrics INFO:   Brier:     0.0387
+[2026-08-22 19:07:18] src.evaluation.metrics INFO:   CM: TN=154480 FP=4759 FN=4816 TP=37749
+[2026-08-22 19:07:21] resume_step11 INFO: 
+Test evaluation at cost-sensitive thresholds:
+[2026-08-22 19:07:22] src.evaluation.metrics INFO: \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+[2026-08-22 19:07:22] src.evaluation.metrics INFO: Evaluation: random_forest_cost_sensitive (threshold=0.25)
+[2026-08-22 19:07:22] src.evaluation.metrics INFO:   Accuracy:  0.9379
+[2026-08-22 19:07:22] src.evaluation.metrics INFO:   Precision: 0.8091
+[2026-08-22 19:07:22] src.evaluation.metrics INFO:   Recall:    0.9235
+[2026-08-22 19:07:22] src.evaluation.metrics INFO:   F1:        0.8625
+[2026-08-22 19:07:22] src.evaluation.metrics INFO:   ROC-AUC:   0.9609
+[2026-08-22 19:07:22] src.evaluation.metrics INFO:   PR-AUC:    0.8911
+[2026-08-22 19:07:22] src.evaluation.metrics INFO:   Brier:     0.0459
+[2026-08-22 19:07:22] src.evaluation.metrics INFO:   CM: TN=149965 FP=9274 FN=3255 TP=39310
+[2026-08-22 19:07:25] src.evaluation.metrics INFO: \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+[2026-08-22 19:07:25] src.evaluation.metrics INFO: Evaluation: xgboost_cost_sensitive (threshold=0.17)
+[2026-08-22 19:07:25] src.evaluation.metrics INFO:   Accuracy:  0.9406
+[2026-08-22 19:07:25] src.evaluation.metrics INFO:   Precision: 0.8166
+[2026-08-22 19:07:25] src.evaluation.metrics INFO:   Recall:    0.9267
+[2026-08-22 19:07:25] src.evaluation.metrics INFO:   F1:        0.8682
+[2026-08-22 19:07:25] src.evaluation.metrics INFO:   ROC-AUC:   0.9736
+[2026-08-22 19:07:25] src.evaluation.metrics INFO:   PR-AUC:    0.9315
+[2026-08-22 19:07:25] src.evaluation.metrics INFO:   Brier:     0.0387
+[2026-08-22 19:07:25] src.evaluation.metrics INFO:   CM: TN=150381 FP=8858 FN=3120 TP=39445
+[2026-08-22 19:07:28] resume_step11 INFO: 
+--- STEP 14: Feature importance ---
+[2026-08-22 19:07:29] src.evaluation.metrics INFO: Feature importance saved for random_forest
+[2026-08-22 19:07:30] src.evaluation.metrics INFO: Feature importance saved for xgboost
+[2026-08-22 19:07:30] resume_step11 INFO: Top 10 RF features:
+             feature  importance
+ last_fico_range_low    0.401688
+last_fico_range_high    0.385845
+           sub_grade    0.039440
+term_int_interaction    0.033656
+            int_rate    0.028882
+               grade    0.026610
+                term    0.018486
+      loan_to_income    0.008442
+      fico_range_low    0.005847
+     fico_range_high    0.005356
+[2026-08-22 19:07:30] resume_step11 INFO: Top 10 XGB features:
+              feature  importance
+  last_fico_range_low    0.337687
+ last_fico_range_high    0.304931
+                 term    0.061439
+ term_int_interaction    0.017949
+   mths_since_rcnt_il    0.009334
+       loan_to_income    0.008413
+        num_rev_accts    0.007320
+ mo_sin_old_rev_tl_op    0.006985
+installment_to_income    0.006844
+        log_loan_amnt    0.006477
+[2026-08-22 19:07:30] resume_step11 INFO: 
+--- STEP 15: Phase 3 compatibility analysis ---
+[2026-08-22 19:07:30] src.evaluation.phase3_analysis INFO: Phase 3 analysis saved to results\reports\phase3_analysis.txt
+[2026-08-22 19:07:30] resume_step11 INFO: 
+--- STEP 16: Generating Phase 1 final report ---
+[2026-08-22 19:07:31] src.evaluation.final_report INFO: Final report saved to results\reports\phase1_final_report.txt
+[2026-08-22 19:07:31] resume_step11 INFO: 
+============================================================
+[2026-08-22 19:07:31] resume_step11 INFO: LRRS PHASE 1 (Steps 11-16) -- COMPLETE
+[2026-08-22 19:07:31] resume_step11 INFO: Elapsed: 141.9 s (2.4 min)
+[2026-08-22 19:07:31] resume_step11 INFO: ============================================================
+[2026-08-22 19:07:31] resume_step11 INFO: 
+Artifacts written:
+[2026-08-22 19:07:31] resume_step11 INFO:   models/random_forest_calibrated.pkl
+[2026-08-22 19:07:31] resume_step11 INFO:   models/xgboost_calibrated.pkl
+[2026-08-22 19:07:31] resume_step11 INFO:   results/metrics/  (calibration, threshold, final test metrics)
+[2026-08-22 19:07:31] resume_step11 INFO:   results/plots/    (calibration curves, feature importance)
+[2026-08-22 19:07:31] resume_step11 INFO:   results/reports/  (calibration comparison, final report)
